@@ -136,7 +136,7 @@ The refresh-token rotation state machine:
 stateDiagram-v2
     [*] --> Active : issueInitial (on /login)
     Active --> Used : rotate (happy path)
-    Used --> Used : rotate again → ReuseDetected → family revoked
+    Used --> Used : rotate again, ReuseDetected, family revoked
     Active --> Revoked : revoke (on /logout)
     Active --> Expired : ttl elapsed
     Used --> [*]
