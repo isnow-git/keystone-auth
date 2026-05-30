@@ -211,6 +211,7 @@ Highlights — full reasoning in the ADRs:
 | [ADR-0004](docs/adr/ADR-0004-jooq-over-jpa.md)                     | jOOQ over Spring Data JPA                      |
 | [ADR-0005](docs/adr/ADR-0005-refresh-token-rotation.md)            | Refresh-token rotation + reuse detection       |
 | [ADR-0006](docs/adr/ADR-0006-code-first-openapi.md)                | Code-first OpenAPI with springdoc              |
+| [ADR-0007](docs/adr/ADR-0007-mutation-testing.md)                  | Mutation testing on the rules layers           |
 
 ## Project layout
 

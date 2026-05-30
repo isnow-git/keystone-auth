@@ -1,3 +1,7 @@
+plugins {
+  alias(libs.plugins.pitest)
+}
+
 dependencies {
   implementation(project(":domain"))
 
@@ -22,4 +26,14 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
 
 tasks.named("check") {
   dependsOn("jacocoTestCoverageVerification")
+}
+
+pitest {
+  junit5PluginVersion.set(rootProject.libs.versions.pitest.junit5)
+  targetClasses.set(listOf("com.keystone.auth.application.*"))
+  targetTests.set(listOf("com.keystone.auth.application.*"))
+  threads.set(4)
+  outputFormats.set(listOf("HTML", "XML"))
+  timestampedReports.set(false)
+  mutators.set(listOf("STRONGER"))
 }

@@ -19,6 +19,8 @@ jooq-codegen-plugin = "9.0"
 bouncycastle = "1.78.1"
 slf4j = "2.0.16"
 springdoc = "2.7.0"
+pitest-plugin = "1.15.0"
+pitest-junit5 = "1.2.1"
 
 [libraries]
 # Spring
@@ -65,3 +67,4 @@ spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 jooq-codegen = { id = "nu.studer.jooq", version.ref = "jooq-codegen-plugin" }
+pitest = { id = "info.solidsoft.pitest", version.ref = "pitest-plugin" }
