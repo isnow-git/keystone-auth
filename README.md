@@ -118,15 +118,16 @@ sequenceDiagram
     participant R as Resource server
 
     C->>K: POST /auth/login (email, password)
-    K-->>C: 200 + access token (15m)<br/>Set-Cookie: refresh=… (HttpOnly, Secure, SameSite=Strict, 7d)
-    C->>R: GET /api/… (Authorization: Bearer <access>)
-    R->>R: verify with cached JWKS (no call to keystone)
+    Note right of K: issue access token (15m) +<br/>refresh cookie (HttpOnly, 7d)
+    K-->>C: 200 + access token + Set-Cookie
+    C->>R: GET /api with Authorization Bearer access
+    Note right of R: verify with cached JWKS<br/>(no call to keystone)
     R-->>C: 200
 
     Note over C,K: Access token expires
     C->>K: POST /auth/refresh (cookie)
-    K->>K: hash + lookup; mark used; issue new<br/>(reuse → revoke family)
-    K-->>C: 200 + new access<br/>Set-Cookie: refresh=… (rotated)
+    Note right of K: hash + lookup; mark used;<br/>issue new (reuse revokes family)
+    K-->>C: 200 + new access + rotated cookie
 ```
 
 The refresh-token rotation state machine:
