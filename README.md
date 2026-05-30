@@ -24,35 +24,45 @@ a wrong import fails the build.
 
 ```mermaid
 flowchart LR
-    subgraph boot[":boot — Spring Boot launcher"]
-        Main[KeystoneAuthApplication]
+    subgraph boot["boot (Spring Boot launcher)"]
+        Main["KeystoneAuthApplication"]
     end
 
-    subgraph infra[":infrastructure — adapters"]
-        REST[REST controllers]
-        SEC[Spring Security / JWT issuer]
-        JOOQ[jOOQ repositories]
-        RL[Rate limiter]
+    subgraph infra["infrastructure (adapters)"]
+        REST["REST controllers"]
+        SEC["Spring Security / JWT issuer"]
+        JOOQ["jOOQ repositories"]
+        RL["Rate limiter"]
     end
 
-    subgraph app[":application — use cases"]
-        UC1[RegisterUseCase]
-        UC2[LoginUseCase]
-        UC3[RefreshUseCase]
-        UC4[LogoutUseCase]
+    subgraph app["application (use cases)"]
+        UC1["RegisterUseCase"]
+        UC2["LoginUseCase"]
+        UC3["RefreshUseCase"]
+        UC4["LogoutUseCase"]
     end
 
-    subgraph dom[":domain — entities & invariants"]
-        U[User]
-        RT[RefreshToken]
-        VO[Email / HashedPassword / TokenPair]
+    subgraph dom["domain (entities, invariants)"]
+        U["User"]
+        RT["RefreshToken"]
+        VO["Email, HashedPassword, TokenPair"]
     end
 
     Main --> REST
-    REST --> UC1 & UC2 & UC3 & UC4
-    UC1 & UC2 & UC3 & UC4 --> dom
-    UC1 & UC2 & UC3 & UC4 -.uses ports.-> JOOQ
-    UC1 & UC2 & UC3 & UC4 -.uses ports.-> SEC
+    REST --> UC1
+    REST --> UC2
+    REST --> UC3
+    REST --> UC4
+    UC1 --> dom
+    UC2 --> dom
+    UC3 --> dom
+    UC4 --> dom
+    UC1 -.-> JOOQ
+    UC2 -.-> JOOQ
+    UC3 -.-> JOOQ
+    UC4 -.-> JOOQ
+    UC2 -.-> SEC
+    UC3 -.-> SEC
     REST --- RL
 ```
 
@@ -117,27 +127,28 @@ sequenceDiagram
     participant K as keystone-auth
     participant R as Resource server
 
-    C->>K: POST /auth/login (email, password)
-    Note right of K: issue access token (15m) +<br/>refresh cookie (HttpOnly, 7d)
-    K-->>C: 200 + access token + Set-Cookie
-    C->>R: GET /api with Authorization Bearer access
-    Note right of R: verify with cached JWKS<br/>(no call to keystone)
-    R-->>C: 200
+    C->>K: POST /auth/login
+    K-->>C: 200, access token (15m), refresh cookie (HttpOnly, 7d)
+    C->>R: GET /api, Authorization Bearer access
+    R-->>C: 200 (verified locally with cached JWKS)
 
-    Note over C,K: Access token expires
+    Note over C,K: access token expires
     C->>K: POST /auth/refresh (cookie)
-    Note right of K: hash + lookup; mark used;<br/>issue new (reuse revokes family)
-    K-->>C: 200 + new access + rotated cookie
+    K-->>C: 200, rotated access, rotated cookie
+
+    Note over C,K: client replays a used cookie
+    C->>K: POST /auth/refresh (used cookie)
+    K-->>C: 401, family revoked
 ```
 
 The refresh-token rotation state machine:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Active : issueInitial (on /login)
-    Active --> Used : rotate (happy path)
-    Used --> Used : rotate again, ReuseDetected, family revoked
-    Active --> Revoked : revoke (on /logout)
+    [*] --> Active : login issues a fresh token
+    Active --> Used : refresh succeeds (rotation)
+    Used --> Revoked : refresh again triggers reuse detection
+    Active --> Revoked : logout
     Active --> Expired : ttl elapsed
     Used --> [*]
     Revoked --> [*]
