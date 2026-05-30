@@ -1,3 +1,7 @@
+plugins {
+  alias(libs.plugins.pitest)
+}
+
 dependencies {
   testImplementation(rootProject.libs.junit.jupiter)
   testImplementation(rootProject.libs.assertj.core)
@@ -29,4 +33,15 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
 
 tasks.named("check") {
   dependsOn("jacocoTestCoverageVerification")
+}
+
+pitest {
+  junit5PluginVersion.set(rootProject.libs.versions.pitest.junit5)
+  targetClasses.set(listOf("com.keystone.auth.domain.*"))
+  targetTests.set(listOf("com.keystone.auth.domain.*"))
+  threads.set(4)
+  outputFormats.set(listOf("HTML", "XML"))
+  timestampedReports.set(false)
+  mutators.set(listOf("STRONGER"))
+  // Baseline only — not gated yet. Track the mutation score over time.
 }
