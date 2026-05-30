@@ -91,10 +91,8 @@ the outside world (`UserRepository`, `PasswordHasher`, `TokenIssuer`,
 ## Run it
 
 ```bash
-# 1. Generate an RS256 keypair (one-time)
-mkdir -p keys
-openssl genpkey -algorithm RSA -out keys/private.pem -pkeyopt rsa_keygen_bits:2048
-openssl rsa -pubout -in keys/private.pem -out keys/public.pem
+# 1. Generate an RS256 keypair (one-time, idempotent — safe to re-run)
+./scripts/generate-keys.sh
 
 # 2. Start PostgreSQL + the app
 docker compose up --build
@@ -102,6 +100,10 @@ docker compose up --build
 
 The service comes up at `http://localhost:8080`. Actuator health at
 `/actuator/health`.
+
+The keypair lands in `keys/` as `private.pem` (PKCS#8, mode 0600) and
+`public.pem` (X.509, mode 0644). Both paths are read by
+`keystone.jwt.{private,public}-key-path` and are excluded from git.
 
 ## API
 
