@@ -1,6 +1,9 @@
 dependencies {
   implementation(project(":domain"))
 
+  // SLF4J facade only; runtime binding (logback) comes from :infrastructure / :boot.
+  implementation(rootProject.libs.slf4j.api)
+
   testImplementation(rootProject.libs.junit.jupiter)
   testImplementation(rootProject.libs.assertj.core)
 }
