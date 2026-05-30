@@ -14,6 +14,9 @@
 *.xml        text eol=lf
 *.properties text eol=lf
 *.sh         text eol=lf
+*.bat        text eol=crlf
+gradlew      text eol=lf
+gradlew.bat  text eol=crlf
 Dockerfile   text eol=lf
 .gitignore   text eol=lf
 .gitattributes text eol=lf
