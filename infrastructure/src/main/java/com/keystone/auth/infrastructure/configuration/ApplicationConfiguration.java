@@ -7,6 +7,7 @@ import com.keystone.auth.application.port.RefreshTokenRepository;
 import com.keystone.auth.application.port.TokenHasher;
 import com.keystone.auth.application.port.UserRepository;
 import com.keystone.auth.application.usecase.LoginUseCase;
+import com.keystone.auth.application.usecase.LogoutUseCase;
 import com.keystone.auth.application.usecase.RefreshUseCase;
 import com.keystone.auth.application.usecase.RegisterUseCase;
 import com.keystone.auth.infrastructure.security.KeystoneJwtProperties;
@@ -43,6 +44,12 @@ public class ApplicationConfiguration {
         refreshTokenRepository,
         clock,
         properties.refreshTokenTtl());
+  }
+
+  @Bean
+  public LogoutUseCase logoutUseCase(
+      RefreshTokenRepository refreshTokenRepository, TokenHasher tokenHasher) {
+    return new LogoutUseCase(refreshTokenRepository, tokenHasher);
   }
 
   @Bean
