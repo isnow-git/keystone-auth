@@ -1,0 +1,25 @@
+# Default to LF on checkout so Spotless and CI agree with local tooling.
+* text=auto eol=lf
+
+# Force LF on text files Spotless cares about.
+*.java       text eol=lf
+*.kts        text eol=lf
+*.kt         text eol=lf
+*.gradle     text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.md         text eol=lf
+*.sql        text eol=lf
+*.toml       text eol=lf
+*.xml        text eol=lf
+*.properties text eol=lf
+*.sh         text eol=lf
+Dockerfile   text eol=lf
+.gitignore   text eol=lf
+.gitattributes text eol=lf
+
+# Binary
+*.jar        binary
+*.png        binary
+*.jpg        binary
+*.pem        binary

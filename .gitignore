@@ -1,0 +1,38 @@
+# Build
+build/
+out/
+target/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/libs.versions.toml
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+.zed/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Env
+.env
+.env.local
+*.local
+
+# Keys (generated locally)
+keys/
+*.pem
+*.p12
+*.jks
