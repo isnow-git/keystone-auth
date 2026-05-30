@@ -32,6 +32,9 @@ dependencies {
   implementation(libs.bucket4j.core)
   implementation(libs.logstash.logback.encoder)
 
+  // OpenAPI 3 spec + Swagger UI
+  implementation(libs.springdoc.openapi.webmvc)
+
   // jOOQ codegen runs against the Flyway DDL (no live database required).
   jooqGenerator(libs.jooq.meta.extensions)
 

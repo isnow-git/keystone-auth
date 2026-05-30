@@ -39,7 +39,11 @@ public class SecurityConfiguration {
                         antMatcher("/auth/refresh"),
                         antMatcher("/auth/logout"),
                         antMatcher("/actuator/health/**"),
-                        antMatcher("/actuator/info"))
+                        antMatcher("/actuator/info"),
+                        // springdoc OpenAPI + Swagger UI
+                        antMatcher("/v3/api-docs/**"),
+                        antMatcher("/swagger-ui.html"),
+                        antMatcher("/swagger-ui/**"))
                     .permitAll()
                     .anyRequest()
                     .authenticated())
