@@ -99,6 +99,10 @@ jooq {
 // only by integration tests that require Docker. Config classes and jOOQ-generated code are
 // excluded — neither is meaningful business logic and both inflate the denominator.
 tasks.named<JacocoReport>("jacocoTestReport") {
+  // Re-wrapping classDirectories with fileTree(...) discards the implicit task dependencies
+  // the JaCoCo plugin sets up by default (compileJava, processResources, generateJooq); declare
+  // them explicitly so Gradle's task-graph validator stays happy.
+  dependsOn("compileJava", "processResources", "generateJooq")
   classDirectories.setFrom(
     files(
       classDirectories.files.map {
