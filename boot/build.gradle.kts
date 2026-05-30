@@ -16,6 +16,15 @@ dependencies {
   testImplementation(libs.spring.boot.starter.test) {
     exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
   }
+  // E2E uses TestRestTemplate, which needs spring-web on the test classpath.
+  testImplementation(libs.spring.boot.starter.web)
+  testImplementation(libs.spring.boot.testcontainers)
+  testImplementation(platform(libs.testcontainers.bom))
+  testImplementation(libs.testcontainers.postgresql)
+  testImplementation(libs.testcontainers.junit)
+  testImplementation(libs.assertj.core)
+  // Used to verify the issued access token against the published JWKS.
+  testImplementation(libs.nimbus.jose.jwt)
 }
 
 springBoot {
