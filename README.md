@@ -105,6 +105,10 @@ The keypair lands in `keys/` as `private.pem` (PKCS#8, mode 0600) and
 `public.pem` (X.509, mode 0644). Both paths are read by
 `keystone.jwt.{private,public}-key-path` and are excluded from git.
 
+**Interactive API** — `http://localhost:8080/swagger-ui.html` (OpenAPI 3
+spec at `/v3/api-docs`). The Swagger UI is the fastest way to click through
+the auth flow; "Try it out" works against the running container.
+
 ## API
 
 | Method | Path                              | Purpose                                                                  |
@@ -206,6 +210,7 @@ Highlights — full reasoning in the ADRs:
 | [ADR-0003](docs/adr/ADR-0003-hexagonal-architecture.md)            | Hexagonal architecture                         |
 | [ADR-0004](docs/adr/ADR-0004-jooq-over-jpa.md)                     | jOOQ over Spring Data JPA                      |
 | [ADR-0005](docs/adr/ADR-0005-refresh-token-rotation.md)            | Refresh-token rotation + reuse detection       |
+| [ADR-0006](docs/adr/ADR-0006-code-first-openapi.md)                | Code-first OpenAPI with springdoc              |
 
 ## Project layout
 

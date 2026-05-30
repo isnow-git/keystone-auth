@@ -10,6 +10,11 @@ import com.keystone.auth.application.usecase.RegistrationResult;
 import com.keystone.auth.infrastructure.web.dto.AccessTokenResponse;
 import com.keystone.auth.infrastructure.web.dto.LoginRequest;
 import com.keystone.auth.infrastructure.web.dto.RegisterRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -33,6 +38,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/auth")
+@Tag(
+    name = "Authentication",
+    description = "Register, login, refresh, logout — the full auth flow.")
 public class AuthController {
 
   private final RegisterUseCase registerUseCase;
@@ -55,6 +63,18 @@ public class AuthController {
   }
 
   @PostMapping("/register")
+  @Operation(
+      summary = "Register a new user",
+      description =
+          "Validates the email + password (policy: 12–128 chars, no control chars), hashes the"
+              + " password with Argon2id, persists the user with ROLE_USER.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "201", description = "User created"),
+    @ApiResponse(responseCode = "400", description = "Malformed JSON or invalid email"),
+    @ApiResponse(responseCode = "409", description = "Email already registered (generic body)"),
+    @ApiResponse(responseCode = "422", description = "Password does not meet the policy"),
+    @ApiResponse(responseCode = "429", description = "Rate limit exceeded (3 / hour / IP)")
+  })
   public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
     return switch (registerUseCase.execute(request.email(), request.password())) {
       case RegistrationResult.Success ignored -> ResponseEntity.status(HttpStatus.CREATED).build();
@@ -68,6 +88,18 @@ public class AuthController {
   }
 
   @PostMapping("/login")
+  @Operation(
+      summary = "Exchange credentials for an access + refresh pair",
+      description =
+          "Returns a JSON body with the RS256 access token (15-minute TTL) and a refresh cookie"
+              + " (HttpOnly, Secure, SameSite=Strict, Path=/auth/refresh, 7-day TTL). Unknown"
+              + " email and wrong password collapse to the same 401 response (no enumeration).")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Access token issued; refresh cookie set"),
+    @ApiResponse(responseCode = "400", description = "Malformed JSON"),
+    @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+    @ApiResponse(responseCode = "429", description = "Rate limit exceeded (5 / minute / IP)")
+  })
   public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
     return switch (loginUseCase.execute(request.email(), request.password())) {
       case LoginResult.Success success -> tokenResponse(success.tokens());
@@ -77,6 +109,21 @@ public class AuthController {
   }
 
   @PostMapping("/refresh")
+  @Operation(
+      summary = "Rotate the refresh token, get a new access token",
+      description =
+          "Reads the refresh cookie, looks the token up by SHA-256 hash, calls the rotation"
+              + " state machine (ADR-0005). On success returns a new access token and a rotated"
+              + " refresh cookie. Every failure mode — not found, expired, revoked, *reuse"
+              + " detected* — collapses to the same opaque 401 so the wire cannot distinguish"
+              + " benign expiry from suspected theft.")
+  @SecurityRequirement(name = "refreshCookie")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Token rotated; new pair returned"),
+    @ApiResponse(
+        responseCode = "401",
+        description = "Refresh failed (opaque — same body for every failure variant)")
+  })
   public ResponseEntity<?> refresh(HttpServletRequest request) {
     var plaintext = readRefreshCookie(request);
     if (plaintext == null) {
@@ -98,6 +145,14 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
+  @Operation(
+      summary = "Revoke the active refresh-token family",
+      description =
+          "Idempotent: always returns 204 regardless of whether the cookie was present or"
+              + " already revoked. Prevents probing account existence through the logout"
+              + " endpoint.")
+  @SecurityRequirement(name = "refreshCookie")
+  @ApiResponse(responseCode = "204", description = "Cookie cleared, family revoked if found")
   public ResponseEntity<Void> logout(HttpServletRequest request) {
     logoutUseCase.execute(readRefreshCookie(request));
     return ResponseEntity.noContent()

@@ -18,6 +18,7 @@ google-java-format = "1.24.0"
 jooq-codegen-plugin = "9.0"
 bouncycastle = "1.78.1"
 slf4j = "2.0.16"
+springdoc = "2.7.0"
 
 [libraries]
 # Spring
@@ -49,6 +50,7 @@ bucket4j-core = { module = "com.bucket4j:bucket4j-core", version.ref = "bucket4j
 
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+springdoc-openapi-webmvc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-encoder" }
 
 # Testing
