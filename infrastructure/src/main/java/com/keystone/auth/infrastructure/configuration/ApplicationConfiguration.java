@@ -1,8 +1,14 @@
 package com.keystone.auth.infrastructure.configuration;
 
+import com.keystone.auth.application.port.AccessTokenIssuer;
 import com.keystone.auth.application.port.PasswordHasher;
+import com.keystone.auth.application.port.RefreshTokenGenerator;
+import com.keystone.auth.application.port.RefreshTokenRepository;
+import com.keystone.auth.application.port.TokenHasher;
 import com.keystone.auth.application.port.UserRepository;
+import com.keystone.auth.application.usecase.LoginUseCase;
 import com.keystone.auth.application.usecase.RegisterUseCase;
+import com.keystone.auth.infrastructure.security.KeystoneJwtProperties;
 import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,5 +21,26 @@ public class ApplicationConfiguration {
   public RegisterUseCase registerUseCase(
       UserRepository userRepository, PasswordHasher passwordHasher, Clock clock) {
     return new RegisterUseCase(userRepository, passwordHasher, clock);
+  }
+
+  @Bean
+  public LoginUseCase loginUseCase(
+      UserRepository userRepository,
+      PasswordHasher passwordHasher,
+      AccessTokenIssuer accessTokenIssuer,
+      RefreshTokenGenerator refreshTokenGenerator,
+      TokenHasher tokenHasher,
+      RefreshTokenRepository refreshTokenRepository,
+      Clock clock,
+      KeystoneJwtProperties properties) {
+    return new LoginUseCase(
+        userRepository,
+        passwordHasher,
+        accessTokenIssuer,
+        refreshTokenGenerator,
+        tokenHasher,
+        refreshTokenRepository,
+        clock,
+        properties.refreshTokenTtl());
   }
 }
