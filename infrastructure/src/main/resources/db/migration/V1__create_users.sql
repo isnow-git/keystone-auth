@@ -8,11 +8,14 @@ CREATE TABLE users (
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     CONSTRAINT users_email_unique UNIQUE (email),
-    CONSTRAINT users_email_format CHECK (email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
+    CONSTRAINT users_email_format CHECK (email LIKE '%_@_%._%'),
     CONSTRAINT users_roles_non_empty CHECK (cardinality(roles) > 0)
 );
 
-CREATE INDEX users_email_lower_idx ON users (LOWER(email));
+-- No expression index on LOWER(email): the `Email` value object normalises to
+-- lowercase before any query, so the UNIQUE constraint above already serves
+-- case-insensitive lookups. Keeping plain DDL also lets the jOOQ
+-- DDLDatabase-driven codegen parse this migration without a live PostgreSQL.
 
 COMMENT ON TABLE  users IS 'Authenticated principals.';
 COMMENT ON COLUMN users.password_hash IS 'Argon2id-encoded password hash (never plaintext).';
