@@ -1,0 +1,12 @@
+.gradle
+build
+*/build
+.idea
+.vscode
+.zed
+.git
+.github
+docs
+keys
+*.md
+.env*
